@@ -3,107 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>はぶちん (@habuchin) - Presentations</title>
-    <meta name="description" content="はぶちん (@habuchin) の技術プレゼンテーション、ライトニングトーク、ワークショップ資料のポートフォリオサイトです。">
+    <title>habuchin Portfolio</title>
+    <meta name="description" content="Technical presentations and talks by @habuchin">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        /* Smooth scrolling */
+        html { scroll-behavior: smooth; }
+        /* Minimal selection style */
+        ::selection { background: #3b82f6; color: #fff; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
-    <!-- ヘッダー -->
-    <header class="bg-white shadow-sm border-b">
-        <div class="max-w-6xl mx-auto px-4 py-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold">はぶちん (@habuchin)</h1>
-                    <p class="text-gray-600 mt-1">Technical Presentations & Talks</p>
-                </div>
-                <div class="flex gap-4">
-                    <a href="https://github.com/habuchin" target="_blank" class="text-gray-600 hover:text-gray-900">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-                        </svg>
-                    </a>
-                </div>
+<body class="bg-black text-white antialiased">
+    <!-- Container -->
+    <div class="min-h-screen max-w-4xl mx-auto px-6 py-20">
+
+        <!-- Header -->
+        <header class="mb-20">
+            <h1 class="text-4xl font-semibold mb-4">habuchin</h1>
+            <p class="text-zinc-400 text-lg">Technical presentations & talks</p>
+            <div class="mt-6 flex gap-6">
+                <a href="https://github.com/habuchin" target="_blank"
+                   class="inline-flex items-center text-zinc-400 hover:text-white transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                    </svg>
+                    @habuchin
+                </a>
+                <a href="https://x.com/modokkin" target="_blank"
+                   class="inline-flex items-center text-zinc-400 hover:text-white transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    @modokkin
+                </a>
+                <a href="https://zenn.dev/modokkin" target="_blank"
+                   class="inline-flex items-center text-zinc-400 hover:text-white transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M.264 23.771h4.984c.264 0 .498-.147.645-.352L19.614.874c.176-.293-.029-.645-.381-.645h-4.72c-.235 0-.44.117-.557.323L.03 23.361c-.088.176.029.41.234.41zM17.445 23.419l6.479-10.408c.205-.323-.029-.733-.41-.733h-4.691c-.176 0-.352.088-.44.235l-6.655 10.643c-.176.264.029.616.352.616h4.779c.234-.001.468-.118.586-.353z"/>
+                    </svg>
+                    Zenn
+                </a>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <!-- メインコンテンツ -->
-    <main class="max-w-6xl mx-auto px-4 py-12">
-        <!-- 紹介セクション -->
-        <section class="mb-12">
-            <div class="bg-white rounded-lg shadow-sm p-8">
-                <h2 class="text-xl font-semibold mb-4">About</h2>
-                <p class="text-gray-700 leading-relaxed">
-                    技術セッション、ライトニングトーク、ワークショップなどのプレゼンテーション資料を公開しています。
-                    各資料はLP形式のWebプレゼンテーションとして、スクロールで読み進められるように作成されています。
-                </p>
-            </div>
-        </section>
+        <!-- Presentations -->
+        <main>
+            <section>
+                <h2 class="text-xl font-medium mb-8 text-zinc-300">Presentations</h2>
 
-        <!-- プレゼンテーション一覧 -->
-        <section>
-            <h2 class="text-2xl font-bold mb-6">Presentations</h2>
-
-            <div class="grid gap-6">
-                <!-- 2025-09-14 AI園芸LT -->
-                <article class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                    <a href="presen/2025-09-14-ai-gardening/" class="block p-6">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
-                                        LT
-                                    </span>
-                                    <time class="text-gray-500 text-sm">2025年9月14日</time>
+                <div class="space-y-8">
+                    <!-- 2025-09-14 AI園芸 -->
+                    <article class="group">
+                        <a href="presen/2025-09-14-ai-gardening/"
+                           class="block border border-zinc-800 hover:border-zinc-600 rounded-lg p-6 transition-all hover:bg-zinc-950">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-4 mb-3">
+                                        <span class="text-xs font-medium text-emerald-400 uppercase tracking-wider">
+                                            Lightning Talk
+                                        </span>
+                                        <time class="text-xs text-zinc-500">2025.09.14</time>
+                                    </div>
+                                    <h3 class="text-lg font-medium mb-2 group-hover:text-blue-400 transition-colors">
+                                        AIコーディングでガーデニングを楽にするサービスを作った話
+                                    </h3>
+                                    <p class="text-sm text-zinc-400 leading-relaxed mb-4">
+                                        AIコーディング道場最終発表。SuperClaude Frameworkを活用し、2週間でガーデニング管理Webサービス「Plant Manager」を開発した体験記。
+                                    </p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400">SuperClaude</span>
+                                        <span class="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400">Next.js 15</span>
+                                        <span class="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400">Go</span>
+                                        <span class="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400">MySQL</span>
+                                    </div>
                                 </div>
-                                <h3 class="text-xl font-semibold mb-2 text-gray-900">
-                                    AIで園芸を楽しく！生成AIを使った園芸支援システムの開発
-                                </h3>
-                                <p class="text-gray-700 mb-4">
-                                    園芸初心者の課題をAIで解決！画像認識による植物の健康診断、ChatGPTによる栽培アドバイス、IoTセンサーとの連携による自動管理システムの構築事例を紹介します。
-                                </p>
-                                <div class="flex flex-wrap gap-2">
-                                    <span class="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                                        生成AI
-                                    </span>
-                                    <span class="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                                        画像認識
-                                    </span>
-                                    <span class="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                                        IoT
-                                    </span>
-                                    <span class="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                                        Python
-                                    </span>
-                                    <span class="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                                        ChatGPT
-                                    </span>
+                                <div class="ml-4 text-zinc-600 group-hover:text-zinc-400 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
                                 </div>
                             </div>
-                            <div class="ml-4 text-gray-400">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </a>
+                    </article>
+                </div>
+            </section>
+        </main>
+
+        <!-- Speaker Deck Presentations -->
+        <section class="mt-20">
+            <h2 class="text-xl font-medium mb-8 text-zinc-300">Speaker Deck Archives</h2>
+
+            <div class="space-y-8">
+                <!-- External presentations -->
+                <article class="group">
+                    <a href="https://speakerdeck.com/motokihabuchi/leveraging-development-containers-for-parallel-deployment-of-service-patterns"
+                       target="_blank"
+                       class="block border border-zinc-800 hover:border-zinc-600 rounded-lg p-6 transition-all hover:bg-zinc-950">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4 mb-3">
+                                    <span class="text-xs font-medium text-sky-400 uppercase tracking-wider">
+                                        External
+                                    </span>
+                                    <span class="text-xs text-zinc-500">Speaker Deck</span>
+                                </div>
+                                <h3 class="text-lg font-medium mb-2 group-hover:text-blue-400 transition-colors">
+                                    開発コンテナを活用し、並列で同じサービスを複数パターン構築
+                                </h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400">Docker</span>
+                                    <span class="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400">DevContainer</span>
+                                </div>
+                            </div>
+                            <div class="ml-4 text-zinc-600 group-hover:text-zinc-400 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                 </svg>
                             </div>
                         </div>
                     </a>
                 </article>
+
+                <article class="group">
+                    <a href="https://speakerdeck.com/motokihabuchi/using-aws-controltower-in-yappli"
+                       target="_blank"
+                       class="block border border-zinc-800 hover:border-zinc-600 rounded-lg p-6 transition-all hover:bg-zinc-950">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4 mb-3">
+                                    <span class="text-xs font-medium text-sky-400 uppercase tracking-wider">
+                                        External
+                                    </span>
+                                    <span class="text-xs text-zinc-500">Speaker Deck</span>
+                                </div>
+                                <h3 class="text-lg font-medium mb-2 group-hover:text-blue-400 transition-colors">
+                                    ヤプリにおけるAWS Control Towerの活用
+                                </h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400">AWS</span>
+                                    <span class="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400">Control Tower</span>
+                                    <span class="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400">Infrastructure</span>
+                                </div>
+                            </div>
+                            <div class="ml-4 text-zinc-600 group-hover:text-zinc-400 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="group">
+                    <a href="https://speakerdeck.com/motokihabuchi/kodohua-dekiteinakatutayapuriwoterraformwen-hua-nibian-eteitutahua"
+                       target="_blank"
+                       class="block border border-zinc-800 hover:border-zinc-600 rounded-lg p-6 transition-all hover:bg-zinc-950">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4 mb-3">
+                                    <span class="text-xs font-medium text-sky-400 uppercase tracking-wider">
+                                        External
+                                    </span>
+                                    <span class="text-xs text-zinc-500">Speaker Deck</span>
+                                </div>
+                                <h3 class="text-lg font-medium mb-2 group-hover:text-blue-400 transition-colors">
+                                    コード化できていなかったヤプリをTerraform文化に変えていった話
+                                </h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400">Terraform</span>
+                                    <span class="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400">IaC</span>
+                                    <span class="text-xs px-2 py-1 rounded bg-zinc-900 text-zinc-400">DevOps</span>
+                                </div>
+                            </div>
+                            <div class="ml-4 text-zinc-600 group-hover:text-zinc-400 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+
+                <!-- View all link -->
+                <div class="text-center pt-4">
+                    <a href="https://speakerdeck.com/motokihabuchi"
+                       target="_blank"
+                       class="inline-flex items-center text-sm text-zinc-400 hover:text-white transition-colors">
+                        View all on Speaker Deck
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                </div>
             </div>
         </section>
 
-        <!-- フッター -->
-        <footer class="mt-16 pt-8 border-t text-center text-gray-600">
-            <p class="mb-2">© 2025 はぶちん (@habuchin)</p>
-            <p class="text-sm">
-                <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" class="hover:text-gray-900">
-                    CC BY 4.0 License
+        <!-- Footer -->
+        <footer class="mt-32 pt-8 border-t border-zinc-900">
+            <div class="flex items-center justify-between text-xs text-zinc-500">
+                <p>© 2025 はぶちん</p>
+                <a href="https://creativecommons.org/licenses/by/4.0/"
+                   target="_blank"
+                   class="hover:text-zinc-300 transition-colors">
+                    CC BY 4.0
                 </a>
-            </p>
+            </div>
         </footer>
-    </main>
+    </div>
 </body>
 </html>
