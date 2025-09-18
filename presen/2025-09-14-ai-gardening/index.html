@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIコーディングでガーデニングを楽にするサービスを作った話</title>
+
+    <!-- Google Fonts: M PLUS Rounded 1c -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        @layer base {
+            * {
+                font-family: 'M PLUS Rounded 1c', sans-serif;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            /* デスクトップ用スクロールスナップ */
+            @media (min-width: 640px) {
+                .snap-container {
+                    scroll-snap-type: y mandatory;
+                    height: 100vh;
+                    overflow-y: scroll;
+                }
+
+                .snap-section {
+                    scroll-snap-align: start;
+                    min-height: 100vh;
+                    max-height: 100vh;
+                    overflow-y: auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
+
+            /* モバイル用レイアウト（スナップ無効化） */
+            @media (max-width: 639px) {
+                .snap-container {
+                    scroll-snap-type: none;
+                    height: auto;
+                    overflow-y: visible;
+                }
+
+                .snap-section {
+                    min-height: auto;
+                    max-height: none;
+                    overflow-y: visible;
+                    display: block;
+                    padding: 2rem 1.5rem; /* 統一: 上下2rem、左右1.5rem */
+                }
+
+                /* 統一的なモバイルセクションスタイル */
+                .mobile-section {
+                    padding: 2rem 1.5rem !important;
+                    margin-bottom: 1rem;
+                }
+
+                /* 統一的なモバイルカードスタイル */
+                .mobile-card {
+                    background: #f9fafb;
+                    border-radius: 1rem;
+                    padding: 1rem !important;
+                    margin-bottom: 1rem !important;
+                    width: 100% !important;
+                }
+
+                /* モバイル用フォントサイズ調整（統一） */
+                .mobile-text-adjust h1 {
+                    font-size: 1.75rem !important; /* 28px */
+                    line-height: 2.25rem !important;
+                    margin-bottom: 1rem !important;
+                }
+
+                .mobile-text-adjust h2 {
+                    font-size: 1.5rem !important; /* 24px */
+                    line-height: 2rem !important;
+                    margin-bottom: 0.75rem !important;
+                }
+
+                .mobile-text-adjust h3 {
+                    font-size: 1.25rem !important; /* 20px */
+                    line-height: 1.75rem !important;
+                    margin-bottom: 0.5rem !important;
+                }
+
+                .mobile-text-adjust p,
+                .mobile-text-adjust li {
+                    font-size: 1rem !important; /* 16px */
+                    line-height: 1.5rem !important;
+                }
+
+                /* 小さいテキスト用 */
+                .mobile-text-adjust .text-sm {
+                    font-size: 0.875rem !important; /* 14px */
+                }
+
+                /* モバイル用グリッド調整 */
+                .mobile-stack {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 0.75rem !important;
+                }
+
+                /* プロフィール画像のサイズ調整 */
+                .mobile-profile-img {
+                    width: 8rem !important; /* 128px */
+                    height: 8rem !important;
+                }
+
+                /* 植物絵文字のサイズ調整 */
+                .mobile-emoji {
+                    font-size: 3rem !important; /* 48px */
+                }
+
+                /* ボタンとアクション要素 */
+                .mobile-button {
+                    padding: 0.75rem 1.5rem !important;
+                    font-size: 1rem !important;
+                }
+
+                /* セクション内の余白調整 */
+                .mobile-text-adjust .space-y-4 {
+                    gap: 0.75rem !important;
+                }
+
+                .mobile-text-adjust .space-y-6 {
+                    gap: 1rem !important;
+                }
+
+                /* カード内のパディング統一 */
+                .mobile-text-adjust .bg-gray-50,
+                .mobile-text-adjust .bg-white {
+                    padding: 1rem !important;
+                }
+
+                /* リストアイテムの間隔 */
+                .mobile-text-adjust ul,
+                .mobile-text-adjust ol {
+                    gap: 0.5rem !important;
+                }
+
+                /* 番号付きリストの調整 */
+                .mobile-number {
+                    font-size: 1.25rem !important;
+                    padding: 0.5rem !important;
+                }
+            }
+
+            /* 植物の揺らぎアニメーション */
+            @keyframes sway {
+                0%, 100% { transform: rotate(-2deg); }
+                50% { transform: rotate(2deg); }
+            }
+
+            .plant-sway {
+                animation: sway 3s ease-in-out infinite;
+                transform-origin: bottom center;
+            }
+
+            /* 失敗の震えエフェクト */
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
+            }
+
+            .failure-shake {
+                animation: shake 0.5s ease-in-out;
+            }
+
+            /* フェードインアニメーション */
+            .fade-in {
+                opacity: 0;
+                transform: translateY(30px);
+                transition: all 0.8s ease-out;
+            }
+
+            .fade-in.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            /* プログレスバー */
+            .progress-bar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #22c55e, #16a34a);
+                transition: width 0.3s ease;
+                z-index: 100;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-green-50 to-green-100">
+    <!-- プログレスバー -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="snap-container" id="presentation">
+
+        <!-- セクション1: タイトル -->
+        <section class="snap-section flex items-center justify-center relative p-8 lg:p-12 mobile-text-adjust mobile-section">
+            <div class="text-center fade-in w-full max-w-6xl">
+                <div class="text-6xl lg:text-7xl mb-8 plant-sway mobile-emoji">🌱</div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-green-800 mb-4 leading-tight">
+                    AIコーディングで<br>
+                    ガーデニングを楽にする<br>
+                    サービスを作った話
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-600 mt-8">
+                    AIコーディング道場 最終発表
+                </p>
+                <p class="text-lg md:text-xl text-gray-500 mt-4">
+                    2025年9月18日
+                </p>
+                <p class="text-xl md:text-2xl font-semibold text-green-700 mt-4">
+                    はぶちん (@habuchin)
+                </p>
+            </div>
+        </section>
+
+        <!-- セクション2: 自己紹介 -->
+        <section class="snap-section bg-white flex items-center justify-center mobile-text-adjust mobile-section" style="min-height: 100vh;">
+            <div class="w-full max-w-[1280px] mx-auto px-10 lg:px-12 mobile-stack">
+                <!-- ヘッダー部分 -->
+                <div class="text-center mb-4 lg:mb-6">
+                    <h2 class="text-[32pt] lg:text-[40pt] leading-none font-bold text-black mb-2">
+                        自己紹介
+                    </h2>
+                    <div class="w-20 h-1 bg-green-600 mx-auto rounded-full"></div>
+                </div>
+                
+                <!-- コンテンツ部分: 黄金比 62:38 -->
+                <div class="grid grid-cols-1 lg:grid-cols-[62%_38%] gap-6 lg:gap-8 items-start mobile-stack">
+                    <!-- 左側：2つのブロック -->
+                    <div class="space-y-6 lg:space-y-6">
+                        <!-- プロフィールブロック -->
+                        <div class="bg-gray-50 rounded-2xl p-6 lg:p-6 mobile-card">
+                            <h3 class="text-[24pt] lg:text-[28pt] font-bold text-black mb-4">構成要素</h3>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-600 text-[20pt] lg:text-[22pt]">▶</span>
+                                    <span class="text-black text-[18pt] lg:text-[20pt]">飲食店向けSaaSスタートアップでSRE</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-600 text-[20pt] lg:text-[22pt]">▶</span>
+                                    <span class="text-black text-[18pt] lg:text-[20pt]">クラウドインフラ</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-600 text-[20pt] lg:text-[22pt]">▶</span>
+                                    <span class="text-black text-[18pt] lg:text-[20pt]">趣味はガーデニング</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- ガーデニング経緯ブロック -->
+                        <div class="bg-gray-50 rounded-2xl p-6 lg:p-6 mobile-card">
+                            <h3 class="text-[24pt] lg:text-[28pt] font-bold text-black mb-4">
+                                ガーデニングが趣味になった経緯
+                            </h3>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-600 text-[20pt] lg:text-[22pt]">▶</span>
+                                    <span class="text-black text-[18pt] lg:text-[20pt]">つくばへ移住</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-600 text-[20pt] lg:text-[22pt]">▶</span>
+                                    <span class="text-black text-[18pt] lg:text-[20pt]">豊かな自然環境</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-600 text-[20pt] lg:text-[22pt]">▶</span>
+                                    <span class="text-black text-[18pt] lg:text-[20pt]">ガーデニングにハマる</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右側：プロフィール画像 -->
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gray-400 rounded-full blur-3xl opacity-20"></div>
+                            <img
+                                src="https://1.gravatar.com/avatar/1f820ff5ba6976b305e2625276ab62a8ee173d0b8eda437a9248162bd6fc6781?s=400"
+                                alt="はぶちん"
+                                class="relative w-48 h-48 lg:w-56 lg:h-56 rounded-full border-2 border-black mobile-profile-img"
+                                onerror="this.src='https://www.gravatar.com/avatar/00000000000000000000000000000000?s=400&d=mp'"
+                            >
+                        </div>
+                        <div class="mt-4 lg:mt-6 text-center">
+                            <p class="text-[24pt] lg:text-[28pt] font-bold text-black mb-1">はぶちん 🌮</p>
+                            <a href="https://x.com/modokkin" target="_blank" rel="noopener noreferrer" 
+                               class="inline-flex items-center gap-2 text-[18pt] lg:text-[20pt]">
+                                <svg class="w-5 h-5 text-black" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                </svg>
+                                <span class="text-black underline hover:text-green-600 transition-colors">@modokkin</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- セクション2.5: 趣味の園芸風タイトル -->
+        <section class="snap-section flex items-center justify-center relative overflow-hidden mobile-section" style="min-height: 100vh; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
+            <!-- 背景の装飾要素 -->
+            <div class="absolute inset-0">
+                <!-- 左上の葉っぱ装飾 -->
+                <div class="absolute top-0 left-0 text-[200px] opacity-10 text-green-700 transform -rotate-45 -translate-x-20 -translate-y-20">🌿</div>
+                <!-- 右下の花装飾 -->
+                <div class="absolute bottom-0 right-0 text-[200px] opacity-10 text-pink-400 transform rotate-45 translate-x-20 translate-y-20">🌸</div>
+                <!-- 左下の植木鉢 -->
+                <div class="absolute bottom-0 left-0 text-[150px] opacity-10 text-amber-700 transform translate-y-10 -translate-x-10">🪴</div>
+                <!-- 右上の太陽 -->
+                <div class="absolute top-20 right-20 text-[100px] opacity-20 text-yellow-500">☀️</div>
+            </div>
+
+            <!-- メインコンテンツ -->
+            <div class="relative z-10 text-center px-6 lg:px-8 fade-in">
+                <!-- メインタイトル -->
+                <div class="mb-8 mt-16">
+                    <h2 class="text-[48pt] lg:text-[64pt] font-bold mb-4" style="font-family: 'Hiragino Mincho ProN', serif; color: #2e7d32; text-shadow: 3px 3px 0px rgba(255,255,255,0.8);">
+                        趣味は園芸
+                    </h2>
+                    <!-- サブタイトル -->
+                    <div class="relative inline-block">
+                        <div class="absolute inset-0 bg-white opacity-80 rounded-2xl blur-sm"></div>
+                        <p class="relative text-[24pt] lg:text-[32pt] font-medium px-8 py-3 text-green-800" style="font-family: 'Hiragino Kaku Gothic ProN', sans-serif;">
+                            〜今日から始めるガーデニング〜
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 装飾的な要素（アニメーションなし） -->
+                <div class="flex justify-center items-center gap-8 mt-10 mb-20">
+                    <span class="text-[40pt] lg:text-[48pt]">🌱</span>
+                    <span class="text-[40pt] lg:text-[48pt]">🌿</span>
+                    <span class="text-[40pt] lg:text-[48pt]">🌻</span>
+                    <span class="text-[40pt] lg:text-[48pt]">🌷</span>
+                    <span class="text-[40pt] lg:text-[48pt]">🌺</span>
+                </div>
+
+                <!-- 制作協力風（下部中央に配置） -->
+                <div class="mt-auto text-center text-[12pt] lg:text-[14pt] text-gray-600 opacity-70">
+                    制作協力：AIコーディング道場
+                </div>
+            </div>
+
+            <!-- アニメーション用のスタイル -->
+            <style>
+                @keyframes bounce {
+                    0%, 100% {
+                        transform: translateY(0);
+                    }
+                    50% {
+                        transform: translateY(-20px);
+                    }
+                }
+            </style>
+        </section>
+
+        <!-- セクション3: 問題提起 -->
+        <section class="snap-section bg-white flex items-center justify-center mobile-text-adjust mobile-section" style="min-height: 100vh;">
+            <div class="w-full max-w-[1280px] mx-auto px-8 lg:px-12">
+                <!-- ヘッダー部分 -->
+                <div class="text-center mb-6 lg:mb-8">
+                    <h2 class="text-[32pt] lg:text-[40pt] leading-none font-bold text-black mb-2">
+                        Notionでは入力が手間だった
+                    </h2>
+                    <div class="w-20 h-1 bg-green-600 mx-auto rounded-full"></div>
+                </div>
+                
+                <!-- コンテンツ部分 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-start mobile-stack">
+                    <!-- 左側：問題リスト -->
+                    <div class="bg-gray-50 rounded-2xl p-6 lg:p-8 mobile-card">
+                        <h3 class="text-[24pt] lg:text-[28pt] font-bold text-black mb-4 lg:mb-6">
+                            改善したいポイント
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <span class="text-[22pt] lg:text-[24pt] text-black">×</span>
+                                <p class="text-[18pt] lg:text-[20pt] text-black">
+                                    植物が増えると記録が面倒
+                                </p>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-[22pt] lg:text-[24pt] text-black">×</span>
+                                <p class="text-[18pt] lg:text-[20pt] text-black">
+                                    肥料いつあげたっけ？
+                                </p>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-[22pt] lg:text-[24pt] text-black">×</span>
+                                <p class="text-[18pt] lg:text-[20pt] text-black">
+                                    剪定時期はいつだっけ？
+                                </p>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-[22pt] lg:text-[24pt] text-black">×</span>
+                                <p class="text-[18pt] lg:text-[20pt] text-black">
+                                    追肥のタイミングはいつだっけ？
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右側：解決したい課題 -->
+                    <div class="bg-red-50 rounded-2xl p-6 lg:p-8 border-2 border-red-200 mobile-card">
+                        <h3 class="text-[24pt] lg:text-[28pt] font-bold text-red-700 mb-4 lg:mb-6 text-center">
+                            解決したい課題
+                        </h3>
+
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="space-y-4">
+                                        <div class="bg-white rounded-lg p-4 border border-red-300 mobile-card">
+                                            <p class="text-[18pt] lg:text-[20pt] text-black font-semibold">記録するのが面倒</p>
+                                        </div>
+                                        <div class="text-red-600 text-[20pt] font-bold">↓</div>
+                                        <div class="bg-white rounded-lg p-4 border border-red-300 mobile-card">
+                                            <p class="text-[18pt] lg:text-[20pt] text-black font-semibold">ケアを忘れたり遅れたりする</p>
+                                        </div>
+                                        <div class="text-red-600 text-[20pt] font-bold">↓</div>
+                                        <div class="bg-red-100 rounded-lg p-4 border-2 border-red-400 mobile-card">
+                                            <p class="text-[18pt] lg:text-[20pt] text-red-700 font-bold">
+                                                植物のパフォーマンスを<br>発揮できない！
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- セクション3.5: PRDで調べたビジネス価値 -->
+        <section class="snap-section flex items-center justify-center p-6 lg:p-8 mobile-text-adjust mobile-section">
+            <div class="w-full max-w-6xl fade-in">
+                <!-- タイトル部分 -->
+                <div class="text-center mb-4 lg:mb-6">
+                    <h2 class="text-[28pt] lg:text-[36pt] leading-none font-bold text-black mb-2">
+                        PRD作った時に調べたビジネス価値
+                    </h2>
+                    <div class="w-20 h-1 bg-green-600 mx-auto rounded-full"></div>
+                </div>
+
+                <!-- コンテンツ部分 -->
+                <div class="space-y-5">
+                    <!-- 市場規模 -->
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-5 lg:p-6 border-2 border-green-200 mobile-card">
+                        <div class="flex items-start gap-4">
+                            <div class="text-[32pt] lg:text-[40pt]">💴</div>
+                            <div class="flex-1">
+                                <h3 class="text-[20pt] lg:text-[24pt] font-bold text-green-800 mb-3">
+                                    市場規模
+                                </h3>
+                                <div class="bg-white rounded-lg p-4 shadow-sm">
+                                    <p class="text-[16pt] lg:text-[18pt] text-black mb-2">
+                                        国内ガーデニング市場 <span class="font-bold text-green-600 text-[20pt]">2,500億円</span>
+                                    </p>
+                                    <p class="text-[16pt] lg:text-[18pt] text-gray-700">
+                                        → デジタル化可能な<span class="font-bold text-green-600">10%（250億円）</span>をターゲット
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 収益モデル -->
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-5 lg:p-6 border-2 border-blue-200 mobile-card">
+                        <div class="flex items-start gap-4">
+                            <div class="text-[32pt] lg:text-[40pt]">💎</div>
+                            <div class="flex-1">
+                                <h3 class="text-[20pt] lg:text-[24pt] font-bold text-blue-800 mb-3">
+                                    収益モデル
+                                </h3>
+                                <div class="bg-white rounded-lg p-4 shadow-sm">
+                                    <p class="text-[18pt] lg:text-[20pt] font-bold text-blue-600 mb-2">
+                                        フリーミアム
+                                    </p>
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                                        <div class="bg-blue-50 rounded-lg p-3">
+                                            <p class="text-[14pt] lg:text-[16pt] text-blue-800 font-semibold">基本機能</p>
+                                            <p class="text-[14pt] lg:text-[16pt] text-gray-700">無料</p>
+                                        </div>
+                                        <div class="bg-indigo-50 rounded-lg p-3">
+                                            <p class="text-[14pt] lg:text-[16pt] text-indigo-800 font-semibold">プレミアム機能</p>
+                                            <p class="text-[14pt] lg:text-[16pt] text-gray-700">月額課金</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 目標 -->
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-5 lg:p-6 border-2 border-purple-200 mobile-card">
+                        <div class="flex items-start gap-4">
+                            <div class="text-[32pt] lg:text-[40pt]">🎯</div>
+                            <div class="flex-1">
+                                <h3 class="text-[20pt] lg:text-[24pt] font-bold text-purple-800 mb-3">
+                                    6ヶ月目標
+                                </h3>
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                                    <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-purple-400">
+                                        <p class="text-[14pt] lg:text-[16pt] text-gray-600 mb-1">アクティブユーザー</p>
+                                        <p class="text-[22pt] lg:text-[26pt] font-bold text-purple-600">10,000人</p>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-pink-400">
+                                        <p class="text-[14pt] lg:text-[16pt] text-gray-600 mb-1">有料転換率</p>
+                                        <p class="text-[22pt] lg:text-[26pt] font-bold text-pink-600">15%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- セクション4: 挑戦と失敗 -->
+        <section class="snap-section flex items-center justify-center p-8 lg:p-12 mobile-text-adjust mobile-section">
+            <div class="w-full max-w-6xl fade-in">
+                <!-- タイトル部分 -->
+                <div class="text-center mb-6 lg:mb-8">
+                    <h2 class="text-[32pt] lg:text-[40pt] leading-none font-bold text-black mb-2">
+                        AIコーディングで解決！
+                    </h2>
+                    <div class="w-20 h-1 bg-green-600 mx-auto rounded-full"></div>
+                </div>
+
+                <!-- コンテンツ部分 -->
+                <div class="grid grid-cols-1 lg:grid-cols-[62%_38%] gap-8 lg:gap-10 mobile-stack">
+                    <!-- 左側：挑戦の記録 -->
+                    <div class="space-y-6">
+                        <!-- 1回目・2回目の並列挑戦 -->
+                        <div class="bg-gray-50 rounded-2xl p-6 lg:p-8 mobile-card">
+                            <h3 class="text-[24pt] lg:text-[28pt] font-bold text-black mb-6">
+                                1回目・2回目：並列で試した結果（PRDは共通）
+                            </h3>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div class="bg-white rounded-lg p-4 lg:p-6 mobile-card">
+                                    <h4 class="text-[20pt] lg:text-[24pt] font-bold text-black mb-4">
+                                        Tsumiki
+                                    </h4>
+                                    <ul class="space-y-3 text-[18pt] lg:text-[20pt] text-black">
+                                        <li>導入が簡単</li>
+                                        <li>Kiroに近い体験</li>
+                                        <li>履歴保存はマークダウン</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-white rounded-lg p-4 lg:p-6 mobile-card">
+                                    <h4 class="text-[20pt] lg:text-[24pt] font-bold text-black mb-4">
+                                        Serena単体
+                                    </h4>
+                                    <ul class="space-y-3 text-[18pt] lg:text-[20pt] text-black">
+                                        <li>記憶力が良くなった感覚</li>
+                                        <li>コンテキストのセーブが容易</li>
+                                        <li>結構任せられる印象</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右側：感想と決意 -->
+                    <div class="flex flex-col justify-center">
+                        <div class="bg-gray-50 rounded-2xl p-6 lg:p-8 mobile-card">
+                            <div class="text-center mb-6">
+                                <p class="text-[20pt] lg:text-[24pt] text-black mb-4">
+                                    「半分ぐらいできたけど、なんか違った」
+                                </p>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 lg:p-6 text-center mobile-card">
+                                <p class="text-[24pt] lg:text-[28pt] font-bold text-green-600 mb-2">
+                                    そんな時にあるツールがアップデートしたことを知る！
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- セクション5: 転機 -->
+        <section class="snap-section flex items-center justify-center p-6 lg:p-8 mobile-text-adjust mobile-section">
+            <div class="w-full max-w-6xl fade-in">
+                <!-- タイトル部分 -->
+                <div class="text-center mb-4 lg:mb-6">
+                    <h2 class="text-[28pt] lg:text-[36pt] leading-none font-bold text-black mb-2">
+                        転機：SuperClaude Framework
+                    </h2>
+                    <div class="w-20 h-1 bg-green-600 mx-auto rounded-full"></div>
+                </div>
+
+                <!-- コンテンツ部分 -->
+                <div class="grid grid-cols-1 lg:grid-cols-[62%_38%] gap-6 lg:gap-8 mobile-stack">
+                    <!-- 左側：Framework の詳細 -->
+                    <div class="bg-gray-50 rounded-2xl p-4 lg:p-6 mobile-card">
+                        <h3 class="text-[24pt] lg:text-[28pt] font-bold text-black mb-4">
+                            思い切って一から作り直した
+                        </h3>
+
+                        <div class="mb-4">
+                            <h4 class="text-[20pt] lg:text-[24pt] font-bold text-black mb-3">
+                                何が変わったのか
+                            </h4>
+                            <ul class="space-y-2 text-[18pt] lg:text-[20pt] text-black">
+                                <li>道具を揃え直して、一からやり直したような感覚</li>
+                                <li>MCPツール群が組み込まれていて活用しやすい</li>
+                                <li>専門エージェントで、PRDもブラッシュアップした</li>
+                                <li>ツールというよりテンプレートなのでロックインされない</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white rounded-lg p-3 lg:p-4 text-center mobile-card">
+                            <p class="text-[22pt] lg:text-[26pt] font-bold text-green-600">
+                                明らかに開発体験が向上した
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 右側：開発期間 -->
+                    <div class="flex flex-col justify-center">
+                        <div class="bg-gray-50 rounded-2xl p-6 lg:p-8 text-center mobile-card">
+                            <p class="text-[20pt] lg:text-[24pt] font-bold text-black mb-3">
+                                開発期間
+                            </p>
+                            <p class="text-[36pt] lg:text-[44pt] font-bold text-green-600 mb-2">
+                                2週間
+                            </p>
+                            <p class="text-[18pt] lg:text-[20pt] text-black">
+                                一応形になった！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- セクション6: 成果デモ -->
+        <section class="snap-section flex items-center justify-center p-6 lg:p-8 mobile-text-adjust mobile-section">
+            <div class="w-full max-w-6xl fade-in">
+                <!-- タイトル部分 -->
+                <div class="text-center mb-4 lg:mb-6">
+                    <h2 class="text-[28pt] lg:text-[36pt] leading-none font-bold text-black mb-2">
+                        Plant Manager デモ
+                    </h2>
+                    <div class="w-20 h-1 bg-green-600 mx-auto rounded-full"></div>
+                </div>
+
+                <!-- コンテンツ部分 -->
+                <div class="bg-gray-50 rounded-2xl p-4 lg:p-6 mobile-card">
+                <h3 class="text-[24pt] lg:text-[28pt] font-bold text-black mb-4 text-center">
+                    実際に動く4つの主要機能
+                </h3>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mobile-stack">
+                    <!-- 左側の機能 -->
+                    <div class="space-y-3">
+                        <div class="bg-white rounded-lg p-3 lg:p-4 mobile-card">
+                            <h4 class="text-[20pt] lg:text-[22pt] font-bold text-black mb-1">
+                                1. 植物の登録
+                            </h4>
+                            <p class="text-[18pt] lg:text-[20pt] text-black">
+                                最小限の項目を入力するだけで登録完了
+                            </p>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 lg:p-4 mobile-card">
+                            <h4 class="text-[20pt] lg:text-[22pt] font-bold text-black mb-1">
+                                2. リマインダー通知
+                            </h4>
+                            <p class="text-[18pt] lg:text-[20pt] text-black">
+                                水やりや肥料のタイミングを自動通知
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 右側の機能 -->
+                    <div class="space-y-3">
+                        <div class="bg-white rounded-lg p-3 lg:p-4 mobile-card">
+                            <h4 class="text-[20pt] lg:text-[22pt] font-bold text-black mb-1">
+                                3. ケア記録
+                            </h4>
+                            <p class="text-[18pt] lg:text-[20pt] text-black">
+                                タップ一つで記録完了
+                            </p>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 lg:p-4 mobile-card">
+                            <h4 class="text-[20pt] lg:text-[22pt] font-bold text-black mb-1">
+                                4. 成長履歴
+                            </h4>
+                            <p class="text-[18pt] lg:text-[20pt] text-black">
+                                タイムラインで成長を振り返り
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 bg-white rounded-lg p-3 lg:p-4 text-center mobile-card">
+                    <p class="text-[20pt] lg:text-[22pt] font-bold text-green-600 mb-1">
+                        まずは自分がファーストユーザーになってとことん磨いていく！
+                    </p>
+                    <p class="text-[18pt] lg:text-[20pt] text-black">
+                        これから実際に40種以上の植物を管理してみる予定
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- セクション6.5: 2週間の開発工程 -->
+        <section class="snap-section flex items-center justify-center p-6 lg:p-8 mobile-text-adjust mobile-section">
+            <div class="w-full max-w-7xl fade-in">
+                <!-- タイトル部分 -->
+                <div class="text-center mb-4 lg:mb-6">
+                    <h2 class="text-[28pt] lg:text-[36pt] leading-none font-bold text-black mb-2">
+                        2週間でできたこと
+                    </h2>
+                    <div class="w-20 h-1 bg-green-600 mx-auto rounded-full"></div>
+                </div>
+
+                <!-- コンテンツ部分: コンパクト化 -->
+                <div class="space-y-4">
+                    <!-- Week 1 & Week 2 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mobile-stack">
+                        <!-- Week 1 -->
+                        <div class="bg-gray-50 rounded-2xl p-4 lg:p-5 mobile-card">
+                            <h3 class="text-[20pt] lg:text-[24pt] font-bold text-black mb-3">
+                                Week 1: 基盤構築
+                            </h3>
+                            <div class="space-y-2">
+                                <div class="bg-white rounded-lg p-2 mobile-card">
+                                    <span class="text-[16pt] lg:text-[18pt] font-bold text-black">Day 1-2:</span>
+                                    <span class="text-[16pt] lg:text-[18pt] text-black">PRD作成・Docker環境・MVP実装</span>
+                                </div>
+                                <div class="bg-white rounded-lg p-2 mobile-card">
+                                    <span class="text-[16pt] lg:text-[18pt] font-bold text-black">Day 3-4:</span>
+                                    <span class="text-[16pt] lg:text-[18pt] text-black">バックエンド統合・JWT認証</span>
+                                </div>
+                                <div class="bg-white rounded-lg p-2 mobile-card">
+                                    <span class="text-[16pt] lg:text-[18pt] font-bold text-black">Day 5-7:</span>
+                                    <span class="text-[16pt] lg:text-[18pt] text-black">セキュリティ・パフォーマンス改善</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Week 2 -->
+                        <div class="bg-gray-50 rounded-2xl p-4 lg:p-5 mobile-card">
+                            <h3 class="text-[20pt] lg:text-[24pt] font-bold text-black mb-3">
+                                Week 2: 品質向上
+                            </h3>
+                            <div class="space-y-2">
+                                <div class="bg-white rounded-lg p-2 mobile-card">
+                                    <span class="text-[16pt] lg:text-[18pt] font-bold text-black">Day 8-9:</span>
+                                    <span class="text-[16pt] lg:text-[18pt] text-black">E2Eテスト構築・TDD環境整備</span>
+                                </div>
+                                <div class="bg-white rounded-lg p-2 mobile-card">
+                                    <span class="text-[16pt] lg:text-[18pt] font-bold text-black">Day 10-11:</span>
+                                    <span class="text-[16pt] lg:text-[18pt] text-black">CI/CD（lint・test・build・E2E）</span>
+                                </div>
+                                <div class="bg-white rounded-lg p-2 mobile-card">
+                                    <span class="text-[16pt] lg:text-[18pt] font-bold text-black">Day 12-14:</span>
+                                    <span class="text-[16pt] lg:text-[18pt] text-black">最終最適化・プロダクション対応</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 技術スタックと成果 -->
+                    <div class="bg-gray-50 rounded-2xl p-4 lg:p-5 mobile-card">
+                        <div class="grid grid-cols-3 gap-3 mb-3 mobile-stack">
+                            <div class="bg-white rounded-lg p-2 text-center mobile-card">
+                                <p class="text-[16pt] lg:text-[18pt] font-bold text-black">Frontend</p>
+                                <p class="text-[14pt] lg:text-[16pt] text-black">Next.js 15 + TS</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-2 text-center mobile-card">
+                                <p class="text-[16pt] lg:text-[18pt] font-bold text-black">Backend</p>
+                                <p class="text-[14pt] lg:text-[16pt] text-black">Go + Gin + MySQL</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-2 text-center mobile-card">
+                                <p class="text-[16pt] lg:text-[18pt] font-bold text-black">DevOps</p>
+                                <p class="text-[14pt] lg:text-[16pt] text-black">Docker + GHA</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-2 text-center mobile-card">
+                            <p class="text-[18pt] lg:text-[20pt] font-bold text-green-600">
+                                100+ コミット、22 PR、テストカバレッジ 80%達成！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- セクション6.6: 今後の開発予定 -->
+        <section class="snap-section flex items-center justify-center p-5 lg:p-6 mobile-text-adjust mobile-section">
+            <div class="w-full max-w-7xl fade-in">
+                <!-- タイトル部分 -->
+                <div class="text-center mb-4 lg:mb-5">
+                    <h2 class="text-[28pt] lg:text-[36pt] leading-none font-bold text-black mb-2">
+                        今後の開発予定
+                    </h2>
+                    <div class="w-20 h-1 bg-green-600 mx-auto rounded-full"></div>
+                </div>
+
+                <!-- コンテンツ部分（3列グリッド） -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <!-- インフラ・基盤系 -->
+                    <div class="bg-gray-50 rounded-xl p-4 mobile-card">
+                        <h3 class="text-[20pt] lg:text-[22pt] font-bold text-black mb-3 flex items-center gap-2">
+                            <span class="text-green-600">🔧</span>
+                            インフラ・基盤
+                        </h3>
+                        <div class="space-y-2">
+                            <div class="bg-white rounded-lg p-3 mobile-card">
+                                <p class="text-[16pt] lg:text-[18pt] text-black font-semibold">
+                                    MySQL 5.7 → 8.0
+                                </p>
+                                <p class="text-[14pt] lg:text-[15pt] text-gray-600">
+                                    バージョンアップ
+                                </p>
+                            </div>
+                            <div class="bg-white rounded-lg p-3 mobile-card">
+                                <p class="text-[16pt] lg:text-[18pt] text-black font-semibold">
+                                    GCP構築
+                                </p>
+                                <p class="text-[14pt] lg:text-[15pt] text-gray-600">
+                                    クラウド移行
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- UI/UX改善 -->
+                    <div class="bg-gray-50 rounded-xl p-4 mobile-card">
+                        <h3 class="text-[20pt] lg:text-[22pt] font-bold text-black mb-3 flex items-center gap-2">
+                            <span class="text-green-600">🎨</span>
+                            UI/UX改善
+                        </h3>
+                        <div class="space-y-2">
+                            <div class="bg-white rounded-lg p-2 mobile-card">
+                                <p class="text-[15pt] lg:text-[17pt] text-black">
+                                    • アカウント管理
+                                </p>
+                            </div>
+                            <div class="bg-white rounded-lg p-2 mobile-card">
+                                <p class="text-[15pt] lg:text-[17pt] text-black">
+                                    • 画面遷移改善
+                                </p>
+                            </div>
+                            <div class="bg-white rounded-lg p-2 mobile-card">
+                                <p class="text-[15pt] lg:text-[17pt] text-black">
+                                    • バグ修正
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 機能拡張 -->
+                    <div class="bg-gray-50 rounded-xl p-4 mobile-card">
+                        <h3 class="text-[20pt] lg:text-[22pt] font-bold text-black mb-3 flex items-center gap-2">
+                            <span class="text-green-600">✨</span>
+                            新機能
+                        </h3>
+                        <div class="space-y-2">
+                            <div class="bg-white rounded-lg p-3 mobile-card">
+                                <p class="text-[16pt] lg:text-[18pt] text-black font-semibold">
+                                    データ構造拡張
+                                </p>
+                                <p class="text-[14pt] lg:text-[15pt] text-gray-600">
+                                    履歴データ活用
+                                </p>
+                            </div>
+                            <div class="bg-green-50 border border-green-300 rounded-lg p-3 mobile-card">
+                                <p class="text-[16pt] lg:text-[18pt] text-black font-semibold">
+                                    🤖 AI自然語
+                                </p>
+                                <p class="text-[14pt] lg:text-[15pt] text-green-700">
+                                    文章から記録
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 重点項目（下部に配置） -->
+                <div class="mt-4 bg-green-50 rounded-xl p-4 border-2 border-green-300">
+                    <div class="text-center">
+                        <p class="text-[18pt] lg:text-[20pt] font-bold text-green-800 mb-1">
+                            💡 注力ポイント
+                        </p>
+                        <p class="text-[16pt] lg:text-[18pt] text-green-700">
+                            「パンジーにハイポネックスを適量施肥した」→ AI自動解釈・記録
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- セクション7: 学びと気づき -->
+        <section class="snap-section flex items-center justify-center p-6 lg:p-8 mobile-text-adjust mobile-section">
+            <div class="w-full max-w-7xl fade-in">
+                <!-- タイトル部分 -->
+                <div class="text-center mb-4 lg:mb-6">
+                    <h2 class="text-[28pt] lg:text-[36pt] leading-none font-bold text-black mb-2">
+                        AIコーディングで学んだこと
+                    </h2>
+                    <div class="w-20 h-1 bg-green-600 mx-auto rounded-full"></div>
+                </div>
+                <!-- コンテンツ部分 -->
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mobile-stack">
+                        <!-- APIとTDDの重要性 -->
+                        <div class="bg-gray-50 rounded-2xl p-4 lg:p-5 mobile-card">
+                            <h3 class="text-[20pt] lg:text-[22pt] font-bold text-black mb-3">
+                                API管理とTDDの重要性
+                            </h3>
+                            <p class="text-[18pt] text-black">
+                                E2Eテストだけでは不十分。存在しないエンドポイントにリクエストして動かないことが頻繁に発生。
+                            </p>
+                            <p class="text-[18pt] text-green-600 font-bold mt-2">
+                                必要なAPIを意識してTDDで検証しながら進めることが大切
+                            </p>
+                        </div>
+
+                        <!-- セッション管理での苦労 -->
+                        <div class="bg-gray-50 rounded-2xl p-4 lg:p-5 mobile-card">
+                            <h3 class="text-[20pt] lg:text-[22pt] font-bold text-black mb-3">
+                                セッション管理での苦労
+                            </h3>
+                            <p class="text-[18pt] text-black">
+                                ログインセッションの安全な実装とAPI呼び出し時の引き渡しで苦労。
+                            </p>
+                            <p class="text-[18pt] text-green-600 font-bold mt-2">
+                                AIとの振り返りと原因調査で解決
+                            </p>
+                        </div>
+
+                        <!-- AIとの協働の価値 -->
+                        <div class="bg-gray-50 rounded-2xl p-4 lg:p-5 mobile-card">
+                            <h3 class="text-[20pt] lg:text-[22pt] font-bold text-black mb-3">
+                                AIとの協働の価値
+                            </h3>
+                            <p class="text-[18pt] text-black">
+                                うまくいかない時は一度立ち返って現状把握。
+                            </p>
+                            <p class="text-[18pt] text-green-600 font-bold mt-2">
+                                AIと相談しながら軌道修正することが大切
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- まとめ -->
+                    <div class="bg-white rounded-lg p-3 lg:p-4 text-center mobile-card">
+                        <p class="text-[22pt] lg:text-[24pt] font-bold text-green-600">
+                            人とAIの協働が鍵
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- セクション8: まとめ -->
+        <section class="snap-section flex items-center justify-center p-6 lg:p-8 mobile-text-adjust mobile-section">
+            <div class="w-full max-w-6xl fade-in">
+                <!-- タイトル部分 -->
+                <div class="text-center mb-4 lg:mb-6">
+                    <h2 class="text-[28pt] lg:text-[36pt] leading-none font-bold text-black mb-2">
+                        まとめ
+                    </h2>
+                    <div class="w-20 h-1 bg-green-600 mx-auto rounded-full"></div>
+                </div>
+
+                <!-- コンテンツ部分 -->
+                <div class="bg-gray-50 rounded-2xl p-4 lg:p-6 mobile-card">
+                    <!-- 3つの重要ポイント -->
+                    <h3 class="text-[24pt] lg:text-[28pt] font-bold text-black mb-4 text-center">
+                        3つの重要ポイント
+                    </h3>
+
+                    <div class="space-y-3">
+                        <div class="bg-white rounded-lg p-3 lg:p-4 mobile-card">
+                            <div class="flex items-center gap-4">
+                                <span class="text-[24pt] lg:text-[28pt] font-bold text-green-600 mobile-number flex-shrink-0">1</span>
+                                <div>
+                                    <p class="text-[20pt] lg:text-[22pt] text-black leading-relaxed">
+                                        3度目の正直でようやく形になった
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg p-3 lg:p-4 mobile-card">
+                            <div class="flex items-center gap-4">
+                                <span class="text-[24pt] lg:text-[28pt] font-bold text-green-600 mobile-number flex-shrink-0">2</span>
+                                <div>
+                                    <p class="text-[20pt] lg:text-[22pt] text-black leading-relaxed">
+                                        SuperClaude Frameworkの可能性を実感
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg p-3 lg:p-4 mobile-card">
+                            <div class="flex items-center gap-4">
+                                <span class="text-[24pt] lg:text-[28pt] font-bold text-green-600 mobile-number flex-shrink-0">3</span>
+                                <div>
+                                    <p class="text-[20pt] lg:text-[22pt] text-black leading-relaxed">
+                                        AIにどう作業してもらうか相談しながら構築
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 挑戦への誘い -->
+                    <div class="mt-4 bg-green-600 text-white rounded-lg p-3 lg:p-4 text-center mobile-button">
+                        <p class="text-[22pt] lg:text-[24pt] font-bold mb-1">
+                            AIコーディングは楽しい！
+                        </p>
+                        <p class="text-[18pt] lg:text-[20pt]">
+                            皆さんもぜひ挑戦してみてください！
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- セクション9: Thank You -->
+        <section class="snap-section flex items-center justify-center p-6 lg:p-8 mobile-text-adjust mobile-section">
+            <div class="w-full max-w-6xl fade-in">
+                <!-- タイトル部分 -->
+                <div class="text-center mb-4 lg:mb-6">
+                    <h2 class="text-[28pt] lg:text-[36pt] leading-none font-bold text-black mb-2">
+                        ご清聴ありがとうございました
+                    </h2>
+                    <div class="w-20 h-1 bg-green-600 mx-auto rounded-full"></div>
+                </div>
+
+                <!-- コンテンツ部分 -->
+                <div class="text-center">
+                    <div class="space-y-4 text-[20pt] lg:text-[24pt] text-black mb-6">
+                        <p>AIコーディング道場 最終発表</p>
+                        <p>2025年9月18日</p>
+                        <p class="font-bold">はぶちん (@habuchin)</p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-2xl p-6 lg:p-8 inline-block mobile-card">
+                        <p class="text-[18pt] lg:text-[20pt] text-black mb-2">
+                            Plant Manager は開発継続中です
+                        </p>
+                        <p class="text-[18pt] lg:text-[20pt] text-green-600 font-bold">
+                            一緒に植物を育てましょう！
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // モバイル判定
+        const isMobile = window.innerWidth <= 640;
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Progress bar
+        const progressBar = document.getElementById('progressBar');
+        const presentation = document.getElementById('presentation');
+
+        presentation.addEventListener('scroll', () => {
+            const scrollPercentage = (presentation.scrollTop / (presentation.scrollHeight - presentation.clientHeight)) * 100;
+            progressBar.style.width = scrollPercentage + '%';
+        });
+
+        // Keyboard navigation（デスクトップのみ）
+        if (!isMobile) {
+            let currentSection = 0;
+            const sections = document.querySelectorAll('.snap-section');
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (currentSection < sections.length - 1) {
+                        currentSection++;
+                        sections[currentSection].scrollIntoView({ behavior: 'smooth' });
+                    }
+                } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    if (currentSection > 0) {
+                        currentSection--;
+                        sections[currentSection].scrollIntoView({ behavior: 'smooth' });
+                    }
+                } else if (e.key === 'Home') {
+                    e.preventDefault();
+                    currentSection = 0;
+                    sections[currentSection].scrollIntoView({ behavior: 'smooth' });
+                } else if (e.key === 'End') {
+                    e.preventDefault();
+                    currentSection = sections.length - 1;
+                    sections[currentSection].scrollIntoView({ behavior: 'smooth' });
+                } else if (e.key === 'f' || e.key === 'F') {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen();
+                    } else {
+                        document.exitFullscreen();
+                    }
+                }
+            });
+
+            // Update current section on scroll
+            presentation.addEventListener('scroll', () => {
+                const scrollPosition = presentation.scrollTop + (presentation.clientHeight / 2);
+                sections.forEach((section, index) => {
+                    const sectionTop = section.offsetTop;
+                    const sectionBottom = sectionTop + section.offsetHeight;
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                        currentSection = index;
+                    }
+                });
+            });
+        }
+
+    </script>
+</body>
+</html>
